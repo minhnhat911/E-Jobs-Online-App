@@ -1,0 +1,87 @@
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+<h1 style="text-align: center; color: #447e9b;">BÁO CÁO THỐNG KÊ HỆ THỐNG E-JOBS</h1>
+
+<div style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 20px; padding: 20px;">
+    
+    <div style="width: 45%; min-width: 400px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h2 style="text-align: center;">Tin tuyển dụng theo ngành nghề</h2>
+        <canvas id="jobChart"></canvas>
+    </div>
+
+    <div style="width: 45%; min-width: 400px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h2 style="text-align: center;">Doanh thu theo phương thức (VND)</h2>
+        <canvas id="revenueChart"></canvas>
+    </div>
+
+    <div style="width: 45%; min-width: 400px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h2 style="text-align: center;">Cơ cấu người dùng hệ thống</h2>
+        <canvas id="userChart"></canvas>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+window.onload = function() {
+    let jobLabels = [];
+    let jobData = [];
+    {% for s in job_stats %}
+        jobLabels.push('{{ s.name }}');
+        jobData.push({{ s.job_count }});
+    {% endfor %}
+
+    new Chart(document.getElementById('jobChart'), {
+        type: 'bar',
+        data: {
+            labels: jobLabels,
+            datasets: [{
+                label: 'Số lượng tin tuyển dụng',
+                data: jobData,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+    });
+
+    let revLabels = [];
+    let revData = [];
+    {% for r in revenue_stats %}
+        revLabels.push('{{ r.payment_method }}');
+        revData.push({{ r.total }});
+    {% endfor %}
+
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'pie',
+        data: {
+            labels: revLabels,
+            datasets: [{
+                data: revData,
+                backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff']
+            }]
+        }
+    });
+
+    let userLabels = [];
+    let userData = [];
+    {% for u in user_stats %}
+        userLabels.push('{{ u.role }}');
+        userData.push({{ u.total }});
+    {% endfor %}
+
+    new Chart(document.getElementById('userChart'), {
+        type: 'doughnut',
+        data: {
+            labels: userLabels,
+            datasets: [{
+                data: userData,
+                backgroundColor: ['#2ecc71', '#e67e22', '#3498db']
+            }]
+        }
+    });
+}
+</script>
+{% endblock %}
